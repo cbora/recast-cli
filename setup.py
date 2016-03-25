@@ -14,6 +14,6 @@ setup(
     'recast-api'
   ],
   dependency_links = [
-      'https://github.com/lukasheinrich/recast-api/tarball/master#egg=recast-api-0.0.1'
+      'https://github.com/cbora/recast-api/tarball/master#egg=recast-api-0.0.1'
   ]
 )
