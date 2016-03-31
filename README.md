@@ -1,6 +1,6 @@
 ## RECAST command line interface
 
-Command Line interface to interact with the RECAST API. For POST commands, one should provide their ORCID_ID & ACCESS_TOKEN in the `recastcli/resources/config.yaml`. 
+Command Line interface used to interact with the RECAST API. For POST commands, one should provide their ORCID_ID & ACCESS_TOKEN in the `recastcli/resources/config.yaml`. 
 
 Examples of YAML files for submission can be found in this directory `recastcli/resources`.
 
