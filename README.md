@@ -25,3 +25,19 @@ Downlaod specific request file:
 Download specific response file:
 
     recast-cli download-basic-response 1 --path /data/response.zip
+    
+Upload request file:
+
+    recast-cli upload-basic-request --request_id <id> --basic_id <id> --path </file.zip>
+    
+Upload response file:
+
+    recast-cli upload-basic-response --basic_id <id> --path </responsefile.zip>
+    
+Create analysis:
+
+    recast-cli add-analysis yaml-config-file.yaml
+    
+Create request:
+
+    recast-cli add-request yaml-request-file.yaml
