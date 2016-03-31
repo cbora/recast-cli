@@ -17,3 +17,9 @@ List all analyses:
 List specific analysis:
 
     recast list-analysis 19c471ff-2514-eb44-0d82-59563cc38dab
+
+Downlaod specific request file:
+    recast-cli download-basic-request 1 --path /data/request.zip
+
+Download specific response file:
+    recast-cli download-basic-response 1 --path /data/response.zip

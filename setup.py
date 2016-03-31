@@ -11,7 +11,8 @@ setup(
       },
   install_requires = [
     'Click',
-    'recast-api'
+    'recast-api',
+    'pyyaml'
   ],
   dependency_links = [
       'https://github.com/cbora/recast-api/tarball/master#egg=recast-api-0.0.1'

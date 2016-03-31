@@ -2,6 +2,9 @@ import click
 import recastapi.request
 import recastapi.analysis
 import recastapi.user
+import recastapi.response
+import yaml
+import os
 
 def request_fmt():
   fmt =\
@@ -71,15 +74,100 @@ def list_request(uuid):
   print request_fmt().format(**recastapi.request.request(uuid))
 
 @cli.command(name = 'add-analysis')
-@click.argument('title', 'description')
-def add_analysis(title, description, collaboration,
-                 e_print, journal, doi, inspire_url,
-                 run_condition_id):
-  recastapi.analysis.create(title=title, description=description,
-                            collaboration=collaboration, e_print=e_print,
-                            journal=journal, doi=doi, inspire_url=inspire_url,
-                            run_condition_id=run_condition_id)
-                            
+@click.argument('data')
+def add_analysis(data):
 
-@cli.command(name= 'add-request')
-@click.argument('reason_for_request'):
+  read_config()
+  if not os.path.isfile(data):
+    click.echo('File does not exist!')
+    return
+  
+  f = open(data)
+  data_map = yaml.load(f)
+  f.close()
+  try:
+    recastapi.analysis.create(title=data_map['title'],
+                              collaboration=data_map['collaboration'],
+                              e_print=data_map['e_print'],
+                              journal=data_map['journal'],
+                              doi=data_map['doi'],
+                              inspire_url=data_map['inspire_url'],
+                              description=data_map['description'],
+                              run_condition_name=data_map['run_condition_name'],
+                              run_condition_description=data_map['run_condition_description']
+                              )
+    click.echo('Successfully created the analysis')
+  except Exception, e:
+    click.echo('Failed to create analysis. Please check the YAML file format')
+
+@cli.command(name = 'add-request')
+@click.argument('data')
+def add_request(data):
+  
+  read_config()
+  if not os.path.isfile(data):
+    click.echo('File does not exit!')
+    return
+
+  f = open(data)
+  data_map = yaml.load(f)
+  f.close()
+  
+  try:
+    recastapi.request.create(analysis_id=data_map['analysis_id'],
+                             description_model=data_map['description_model'],
+                             reason_for_request=data_map['reason_for_request'],
+                             additional_information=data_map['additional_information'],
+                             status=data_map['status'],
+                             file_path=data_map['file_path'],
+                             parameter_value=data_map['parameter_value'],
+                             parameter_title=data_map['parameter_title']
+                             )
+    click.echo('Successfully created the request')
+  except Exception, e:
+    click.echo('Failed to create the request. Please check the YAML file format')
+                            
+@cli.command(name= 'download-basic-request')
+@click.option('--path', help='Enter download destination')
+@click.argument('basic_request_id')
+def download_basic_request(basic_request_id, path):
+
+  click.echo(basic_request_id)
+  click.echo(path)
+  recastapi.request.download_file(basic_request_id, path)
+
+@cli.command(name = 'upload-basic-request')
+@click.option('--request_id', help='Request ID')
+@click.option('--basic_id', help='Basic Request ID')
+@click.option('--path', help='File to upload')
+def upload_basic_request(request_id, basic_id, path):
+  read_config()
+  recastapi.request.upload_file(request_id=request_id,
+                                basic_request_id=basic_id,
+                                filename=path)
+
+@cli.command(name = 'download-basic-response')
+@click.option('--path', help='Enter download destination')
+@click.argument('basic_response_id')
+def download_basic_response(basic_response_id, path):
+  recastapi.response.download_archive(basic_response_id, path)
+
+@cli.command(name = 'upload-basic-response')
+@click.option('--basic_id', help='Basic Request')
+@click.option('--path', help='File to upload')
+def upload_basic_response(basic_id, path):
+  read_config()
+  recastapi.response.upload_file(basic_response_id=basic_id,
+                                 file_name=path)
+
+def read_config(config_file=None):
+
+  default_config = 'recastcli/resources/config.yaml'
+  config_file = config_file or default_config
+
+  f = open(config_file)
+  config = yaml.load(f)
+  f.close()
+
+  recastapi.ORCID_ID = config['ORCID_ID']
+  recastapi.ACCESS_TOKEN = config['ACCESS_TOKEN']

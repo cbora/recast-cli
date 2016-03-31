@@ -1,0 +1,9 @@
+#Example file format to create a request
+'analysis_id': 'id has to be integer'
+'description_model': 'description of the model'
+'reason_for_request': 'some data'
+'additional_information': 'additional information'
+'status': 'can be empty'
+'file_path': 'can be empty'
+'parameter_value': 'can be empty'
+'parameter_title': 'can be empty too'
