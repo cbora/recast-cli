@@ -1,5 +1,8 @@
 ## RECAST command line interface
 
+Command Line interface to interact with the RECAST API. For POST commands, one should update the `recastcli/resources/config.yaml`. 
+Examples of YAML files for submission can be found in this directory `recastcli/resources`.
+
 Examples:
 
 List all requests:
