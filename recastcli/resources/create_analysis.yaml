@@ -1,0 +1,9 @@
+#Example yaml file format to create analysis
+'title': 'This cannot be empty'
+'collaboration': 'some data'
+'e_print': 'some data'
+'journal': 'some journal'
+'doi': 'doi'
+'description': 'description'
+'run_condition_name': 'some data'
+'run_condtion_descption': 'some data'
