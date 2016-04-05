@@ -15,6 +15,6 @@ setup(
     'pyyaml'
   ],
   dependency_links = [
-      'https://github.com/cbora/recast-api/tarball/master#egg=recast-api-0.0.1'
+      'https://github.com/recast-hep/recast-api/tarball/master#egg=recast-api-0.0.1'
   ]
 )
