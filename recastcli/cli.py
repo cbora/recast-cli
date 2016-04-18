@@ -129,12 +129,17 @@ def add_request(data):
                             
 @cli.command(name= 'download-basic-request')
 @click.option('--path', help='Enter download destination')
-@click.argument('basic_request_id')
-def download_basic_request(basic_request_id, path):
+@click.argument('request_id')
+@click.argument('point_request_index')
+@click.argument('basic_request_index')
+def download_basic_request(request_id, point_request_index, basic_request_index, path):
 
-  click.echo(basic_request_id)
+  click.echo(basic_request_index)
   click.echo(path)
-  recastapi.request.download_file(basic_request_id, path)
+  recastapi.request.download(int(request_id),
+                             int(point_request_index),
+                             int(basic_request_index),
+                             path)
 
 @cli.command(name = 'upload-basic-request')
 @click.option('--request_id', help='Request ID')
@@ -148,9 +153,16 @@ def upload_basic_request(request_id, basic_id, path):
 
 @cli.command(name = 'download-basic-response')
 @click.option('--path', help='Enter download destination')
-@click.argument('basic_response_id')
-def download_basic_response(basic_response_id, path):
-  recastapi.response.download_archive(basic_response_id, path)
+@click.argument('response_id')
+@click.argument('point_response_index')
+@click.argument('basic_response_index')
+def download_basic_response(response_id, point_response_index, basic_response_index, path):
+  
+  click.echo(path)
+  recastapi.response.download(int(response_id),
+                              int(point_response_id),
+                              int(basic_response_id),
+                              path)
 
 @cli.command(name = 'upload-basic-response')
 @click.option('--basic_id', help='Basic Request')
@@ -159,9 +171,18 @@ def upload_basic_response(basic_id, path):
   read_config()
   recastapi.response.upload_file(basic_response_id=basic_id,
                                  file_name=path)
+  
+@cli.command(name = 'request-tree')
+@click.argument('request_id')
+def request_tree(request_id):
+  recastapi.request.request_tree(request_id)
+
+@cli.commad(name = 'response-tree')
+@click.argument('response_id')
+def response_tree(response_id):
+  recastapi.request.response_tree(response_id)
 
 def read_config(config_file=None):
-
   default_config = 'recastcli/resources/config.yaml'
   config_file = config_file or default_config
 
