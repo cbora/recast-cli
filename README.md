@@ -24,11 +24,11 @@ List specific analysis:
 
 Downlaod specific request file:
 
-    recast-cli download-basic-request 1 --path /data/request.zip
+    recast-cli download-basic-request <request_id> <point_request_index> <basic_request_index> --path <optional/path/to/file.zip>
 
 Download specific response file:
 
-    recast-cli download-basic-response 1 --path /data/response.zip
+    recast-cli download-basic-response <response_id> <point_response_index> <basic_response_index> --path </optional/path/to/file.zip>
     
 Upload request file:
 
@@ -40,8 +40,16 @@ Upload response file:
     
 Create analysis:
 
-    recast-cli add-analysis yaml-config-file.yaml
+    recast-cli add-analysis yaml-analysis-file.yaml
     
 Create request:
 
     recast-cli add-request yaml-request-file.yaml
+
+Request tree: (prints point request and basic request indices given a request ID)
+
+    recast-cli request-tree <request_id>
+    
+Response tree: (prints point response and basic response indices given a response ID)
+
+    recast-cli response-tree <response_id>
