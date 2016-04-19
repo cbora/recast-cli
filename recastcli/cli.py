@@ -177,7 +177,7 @@ def upload_basic_response(basic_id, path):
 def request_tree(request_id):
   recastapi.request.request_tree(request_id)
 
-@cli.commad(name = 'response-tree')
+@cli.command(name = 'response-tree')
 @click.argument('response_id')
 def response_tree(response_id):
   recastapi.request.response_tree(response_id)
