@@ -160,8 +160,8 @@ def download_basic_response(response_id, point_response_index, basic_response_in
   
   click.echo(path)
   recastapi.response.download(int(response_id),
-                              int(point_response_id),
-                              int(basic_response_id),
+                              int(basic_response_index),
+                              int(basic_response_index),
                               path)
 
 @cli.command(name = 'upload-basic-response')
