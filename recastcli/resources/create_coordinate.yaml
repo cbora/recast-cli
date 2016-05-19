@@ -1,0 +1,5 @@
+#Example yaml file format to add coordinate to parameter
+'parameter_id': 'id of request, must be INT'
+'coordinate_name': 'name of the coordinate'
+'coordinate_value': 'must be float'
+'filename': 'link to zip file'

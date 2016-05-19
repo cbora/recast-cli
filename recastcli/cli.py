@@ -168,9 +168,6 @@ def coordinate(request_id, parameter_index, coordinate_index):
                                           int(coordinate_index)
                                           )
   print coordinate_fmt().format(**response)
-  print response
-    
-
 
 @cli.command(name = 'add-analysis')
 @click.argument('data')
@@ -184,20 +181,25 @@ def add_analysis(data):
   f = open(data)
   data_map = yaml.load(f)
   f.close()
+
   try:
-    recastapi.analysis.create(title=data_map['title'],
-                              collaboration=data_map['collaboration'],
-                              e_print=data_map['e_print'],
-                              journal=data_map['journal'],
-                              doi=data_map['doi'],
-                              inspire_url=data_map['inspire_url'],
-                              description=data_map['description'],
-                              run_condition_name=data_map['run_condition_name'],
-                              run_condition_description=data_map['run_condition_description']
-                              )
+    response = recastapi.analysis.create(
+      title = data_map['title'],
+      collaboration = data_map['collaboration'],
+      e_print = data_map['e_print'],
+      journal = data_map['journal'],
+      doi = data_map['doi'],
+      inspire_url = data_map['inspire_url'],
+      description = data_map['description'],
+      run_condition_name = data_map['run_condition_name'],
+      run_condition_description = data_map['run_condition_description']
+    )
     click.echo('Successfully created the analysis')
-  except Exceptppion, e:
+    click.echo(response)
+    
+  except Exception, e:
     click.echo('Failed to create analysis. Please check the YAML file format')
+    click.echo(e)
 
 @cli.command(name = 'add-request')
 @click.argument('data')
@@ -213,32 +215,94 @@ def add_request(data):
   f.close()
   
   try:
-    recastapi.request.create(analysis_id=data_map['analysis_id'],
-                             description_model=data_map['description_model'],
-                             reason_for_request=data_map['reason_for_request'],
-                             additional_information=data_map['additional_information'],
-                             status=data_map['status'],
-                             file_path=data_map['file_path'],
-                             parameter_value=data_map['parameter_value'],
-                             parameter_title=data_map['parameter_title']
-                             )
+    recastapi.request.create(
+      analysis_id = int(data_map['analysis_id']),
+      title = data_map['title'],
+      description_model = data_map['description_model'],      
+      reason_for_request = data_map['reason_for_request'],
+      additional_information = data_map['additional_information'],
+      status = data_map['status'],
+      file_path = data_map['file_path'],
+      parameter_value = float(data_map['parameter_value']),
+      parameter_title = data_map['parameter_title']
+    )
     click.echo('Successfully created the request')
   except Exception, e:
     click.echo('Failed to create the request. Please check the YAML file format')
+    click.echo(e)
+
+@cli.command(name = 'add-parameter')
+@click.argument('data')
+def add_parameter(data):
+
+  read_config()
+  if not os.path.isfile(data):
+    click.echo('File does not exist!')
+    return
+
+  f = open(data)
+  data_map = yaml.load(f)
+  f.close()
+  
+  try:
+    response = recastapi.request.add_parameter(
+      request_id = data_map['request_id'],
+      coordinate_value = float(data_map['coordinate_value']),
+      coordinate_title = data_map['coordinate_name'],
+      filename = data_map['filename']
+    )
+    click.echo('Successfully added the parameter')
+  except Exception, e:
+    click.echo('Failed to add the parameter. Please check the YAML file format')
+    click.echo(e)
+
+@cli.command(name = 'add-coordinate')
+@click.argument('data')
+def add_coordinate(data):
+
+  read_config()
+  if not os.path.isfile(data):
+    click.echo('File does not exist!')
+    return
+  
+  f = open(data)
+  data_map = yaml.load(f)
+  f.close()
+
+  try:
+    response = recastapi.request.add_coordinate(
+      parameter_id = data_map['parameter_id'],
+      coordinate_name = data_map['coodinate_name'],
+      coodinate_value = data_map['coordinate_value']
+      )
+    click.echo('Successfully added the coordinate')
+
+  except Exception, e:
+    click.echo('Failed to add the coordinate. Please check the YAML file format!')
+    click.echo(e)
                             
 @cli.command(name= 'download-basic-request')
 @click.option('--path', help='Enter download destination')
-@click.argument('request_id')
-@click.argument('point_request_index')
-@click.argument('basic_request_index')
-def download_basic_request(request_id, point_request_index, basic_request_index, path):
+@click.option('--dry-run')
+@click.argument('request-id')
+@click.argument('point-request-index')
+@click.argument('basic-request-index')
+def download_basic_request(request_id, 
+                           point_request_index, 
+                           basic_request_index, 
+                           path=None,
+                           dry_run=True):
 
-  click.echo(basic_request_index)
-  click.echo(path)
-  recastapi.request.download(int(request_id),
-                             int(point_request_index),
-                             int(basic_request_index),
-                             path)
+  if dry_run == "False" or dry_run == "false":
+    dry_run = False
+  else:
+    dry_run = True
+  response = recastapi.request.download(int(request_id),
+                                        int(point_request_index),
+                                        int(basic_request_index),
+                                        path,
+                                        dry_run)
+  click.echo(response)
 
 @cli.command(name = 'upload-basic-request')
 @click.option('--request_id', help='Request ID')
@@ -252,16 +316,27 @@ def upload_basic_request(request_id, basic_id, path):
 
 @cli.command(name = 'download-basic-response')
 @click.option('--path', help='Enter download destination')
-@click.argument('response_id')
-@click.argument('point_response_index')
-@click.argument('basic_response_index')
-def download_basic_response(response_id, point_response_index, basic_response_index, path):
+@click.option('--dry-run')
+@click.argument('response-id')
+@click.argument('point-response-index')
+@click.argument('basic-response-index')
+def download_basic_response(response_id, 
+                            point_response_index,
+                            basic_response_index,
+                            path=None,
+                            dry_run=True):
   
-  click.echo(path)
-  recastapi.response.download(int(response_id),
-                              int(point_response_index),
-                              int(basic_response_index),
-                              path)
+  if dry_run == "False" or dry_run == "false":
+    dry_run = False
+  else:
+    dry_run = True
+
+  response = recastapi.response.download(int(response_id),
+                                         int(point_response_index),
+                                         int(basic_response_index),
+                                         path,
+                                         dry_run)
+  click.echo(response)
 
 @cli.command(name = 'upload-basic-response')
 @click.option('--basic_id', help='Basic Request')

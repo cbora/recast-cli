@@ -1,0 +1,5 @@
+#Example yaml file format to add parameter to a request
+'request_id': 7
+'coordinate_name': 'cli1'
+'coordinate_value': 12.12
+'filename': 'setup.py'
