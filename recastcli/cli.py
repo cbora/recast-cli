@@ -1,8 +1,12 @@
 import click
-import recastapi.request
-import recastapi.analysis
-import recastapi.user
-import recastapi.response
+import recastapi.analysis.get
+import recastapi.analysis.post
+import recastapi.request.get
+import recastapi.request.post
+import recastapi.response.get
+import recastapi.response.post
+import recastapi.user.get
+import recastapi.user.post
 import yaml
 import os
 
@@ -75,16 +79,13 @@ def coordinate_fmt():
 def file_fmt():
 	fmt =\
 		  u'''\
-		  ================================================
-		  Recast file -- {file_name}
-		  ------------------------------------------------
-		  original name: {original_file_name}
-		  
-		  zenodo file ID: {zenodo_file_id}
-		  
-		  path: {path}
-		  
-		  link: {file_link}
+		  \t================================================
+		  \tRecast file -- {file_name}
+		  \t------------------------------------------------
+		  \toriginal name: {original_file_name}     	  
+		  \tzenodo file ID: {zenodo_file_id}       	  
+		  \tpath: {path}	  
+		  \tlink: {file_link}
 		  
 		  \n\
 		  '''
@@ -96,41 +97,43 @@ def cli():
   
 @cli.command(name = 'list-users')
 def list_users():
-	for p in recastapi.user.user()['_items']:
+        users = recastapi.user.get.user()['_items']
+	for p in users:
 		click.echo(user_fmt().format(**p))
     
 @cli.command(name = 'list-analyses')
 def list_analyses():
-	for p in recastapi.analysis.analysis()['_items']:
+        analyses = recastapi.analysis.get.analysis()
+	for p in analyses:
 		click.echo(analysis_fmt().format(**p))
 
 @cli.command(name = 'list-analysis')
 @click.argument('uuid')
 def list_analysis(uuid):
-	click.echo(analysis_fmt().format(**recastapi.analysis.analysis(uuid)))
+	click.echo(analysis_fmt().format(**recastapi.analysis.get.analysis(uuid)))
 
 @cli.command(name = 'list-requests')
 def list_requests():
-    for p in recastapi.request.request()['_items']:
+        requests = recastapi.request.get.request()
+        for p in requests:
 		print request_fmt().format(**p)
 		
 @cli.command(name = 'list-request')
 @click.argument('uuid')
 def list_request(uuid):
-	print request_fmt().format(**recastapi.request.request(uuid))
+	print request_fmt().format(**recastapi.request.get.request(uuid))
 	
 @cli.command(name= 'list-parameter')
 @click.argument('request-id')
 def list_parameter(request_id):
-
-	response = recastapi.request.parameter(int(request_id))
+	response = recastapi.request.get.parameter(int(request_id))
 	for i, parameter in enumerate(response):
 		print parameter_fmt().format(**({'index': i}))
 		
 		for coordinate in parameter['coordinates']:
 			print coordinate_fmt().format(**coordinate)
 			
-		for zip_file in parameter['file']:
+		for zip_file in parameter['files']:
 			print file_fmt().format(**zip_file)
   
 
@@ -138,7 +141,7 @@ def list_parameter(request_id):
 @click.argument('request-id')
 @click.argument('index')
 def parameter(request_id, index):
-	response = recastapi.request.parameter(int(request_id), int(index))
+	response = recastapi.request.get.parameter(int(request_id), int(index))
 	print parameter_fmt().format(**({'index': index}))
 	for coordinate in response['coordinates']:
 		print coordinate_fmt().format(**coordinate)
@@ -151,9 +154,7 @@ def parameter(request_id, index):
 @click.argument('parameter_index')
 def list_coordinate(request_id, parameter_index):
 
-	response = recastapi.request.coordinate(int(request_id), int(parameter_index))
-
-
+	response = recastapi.request.get.coordinate(int(request_id), int(parameter_index))
 	for coordinate in response:
 		print coordinate_fmt().format(**coordinate)
 
@@ -163,9 +164,9 @@ def list_coordinate(request_id, parameter_index):
 @click.argument('coordinate_index')
 def coordinate(request_id, parameter_index, coordinate_index):
   
-	response = recastapi.request.coordinate(int(request_id),
-											int(parameter_index),
-											int(coordinate_index)
+	response = recastapi.request.get.coordinate(int(request_id),
+						int(parameter_index),
+						int(coordinate_index)
 										)
 	print coordinate_fmt().format(**response)
 
@@ -183,7 +184,7 @@ def add_analysis(data):
 	f.close()
 	
 	try:
-		response = recastapi.analysis.create(
+		response = recastapi.analysis.post.analysis(
 			title = data_map['title'],
 			collaboration = data_map['collaboration'],
 			e_print = data_map['e_print'],
@@ -215,7 +216,7 @@ def add_request(data):
 	f.close()
   
 	try:
-		recastapi.request.create(
+		recastapi.request.post.request(
 			analysis_id = int(data_map['analysis_id']),
 			title = data_map['title'],
 			description_model = data_map['description_model'],      
@@ -245,7 +246,7 @@ def add_parameter(data):
 	f.close()
   
 	try:
-		response = recastapi.request.add_parameter(
+		response = recastapi.request.post.parameter(
 			request_id = data_map['request_id'],
 			coordinate_value = float(data_map['coordinate_value']),
 			coordinate_title = data_map['coordinate_name'],
@@ -270,7 +271,7 @@ def add_coordinate(data):
 	f.close()
 	
 	try:
-		response = recastapi.request.add_coordinate(
+		response = recastapi.request.post.coordinate(
 			parameter_id = data_map['parameter_id'],
 			coordinate_name = data_map['coodinate_name'],
 			coodinate_value = data_map['coordinate_value']
@@ -297,22 +298,20 @@ def download_basic_request(request_id,
 		dry_run = False
 	else:
 		dry_run = True
-	response = recastapi.request.download(int(request_id),
-										  int(point_request_index),
-										  int(basic_request_index),
-										  path,
-										  dry_run)
+	response = recastapi.request.get.download(int(request_id),
+					          int(point_request_index),
+					          int(basic_request_index),
+					          path,
+					          dry_run)
 	click.echo(response)
   
 @cli.command(name = 'upload-basic-request')
 @click.option('--request_id', help='Request ID')
-@click.option('--basic_id', help='Basic Request ID')
 @click.option('--path', help='File to upload')
-def upload_basic_request(request_id, basic_id, path):
+def upload_basic_request(parameter_id, path):
 	read_config()
-	recastapi.request.upload_file(request_id=request_id,
-								  basic_request_id=basic_id,
-								  filename=path)
+	recastapi.request.post.upload_file(parameter_id=request_id,
+				           filename=path)
 
 @cli.command(name = 'download-basic-response')
 @click.option('--path', help='Enter download destination')
@@ -325,18 +324,15 @@ def download_basic_response(response_id,
                             basic_response_index,
                             path=None,
                             dry_run=True):
-  
-
 	if dry_run == "False" or dry_run == "false":
 		dry_run = False
 	else:
-		dry_run = True
-		
-		response = recastapi.response.download(int(response_id),
-											   int(point_response_index),
-											   int(basic_response_index),
-											   path,
-											   dry_run)
+		dry_run = True		
+		response = recastapi.response.get.download(int(response_id),
+						           int(point_response_index),
+						           int(basic_response_index),
+						           path,
+						           dry_run)
 		click.echo(response)
   
 @cli.command(name = 'upload-basic-response')
@@ -344,18 +340,18 @@ def download_basic_response(response_id,
 @click.option('--path', help='File to upload')
 def upload_basic_response(basic_id, path):
 	read_config()
-	recastapi.response.upload_file(basic_response_id=basic_id,
-								   file_name=path)
+	recastapi.response.post.upload_file(basic_response_id=basic_id,
+				            file_name=path)
 	
 @cli.command(name = 'request-tree')
 @click.argument('request_id')
 def request_tree(request_id):
-	recastapi.request.request_tree(request_id)
+	recastapi.request.get.tree(request_id)
 
 @cli.command(name = 'response-tree')
 @click.argument('response_id')
 def response_tree(response_id):
-	recastapi.request.response_tree(response_id)
+	recastapi.request.get.tree(response_id)
   
 def read_config(config_file=None):
 	default_config = 'recastcli/resources/config.yaml'
